@@ -1,65 +1,72 @@
 # GifShot
 
-**Win+Shift+S, but for GIFs.**
+**Win+Shift+S，但是给 GIF 用的。**
 
-GifShot is a small Windows utility for recording a selected screen region directly to an animated GIF. The npm package is only the install/update and command-line layer; the resident runtime is a native Rust executable with no Electron, browser engine, FFmpeg, or GUI framework.
+GifShot 是一个轻量的 Windows 工具：框选屏幕区域，直接录成动画 GIF。npm 包只负责安装/更新与命令行；常驻运行时是原生 Rust 可执行文件，没有 Electron、浏览器引擎、FFmpeg 或 GUI 框架。
 
-## User experience
+## 使用流程
 
-1. Press **Win+Shift+G**.
-2. The virtual desktop dims and the pointer becomes a crosshair.
-3. Drag a region on any monitor.
-4. Choose **5 / 10 / 15 / 24 FPS** from the compact popup beside the selection.
-5. Recording starts immediately. The red border stays outside the captured pixels; the `REC mm:ss` timer is placed outside the selection when possible, otherwise capture-excluded or hidden so it is never intentionally burned into the GIF.
-6. Press **Win+Shift+G** again to stop.
-7. GifShot atomically writes the GIF to **Pictures\\GifShot** and places the GIF file on the Windows clipboard.
+1. 按下 **Win+Shift+G**。
+2. 虚拟桌面变暗，指针变为十字线。
+3. 在任意显示器上拖选区域。
+4. 在选区旁的紧凑弹层中选择 **5 / 10 / 15 / 24 FPS**。
+5. 立即开始录制。红色边框在捕获像素之外；`REC mm:ss` 计时器尽量放在选区外，否则会排除捕获或隐藏，避免刻意烧进 GIF。
+6. 再次按下 **Win+Shift+G** 结束。
+7. GifShot 原子写入 GIF 到 **图片\\GifShot**，并把该文件放到 Windows 剪贴板。
 
-If `Win+Shift+G` is already registered, GifShot automatically falls back to `Ctrl+Shift+G` and notifies you.
+若 `Win+Shift+G` 已被占用，会自动回退到 `Ctrl+Shift+G` 并通知你。
 
-## Requirements
+常驻进程没有主窗口。用全局热键或通知区域图标操作。右键托盘图标：**录制 GIF / 设置 / 帮助 / 退出**。设置与帮助走终端交互（没有 GUI 设置窗口）。
 
-- Windows 10 version 2004 or later, or Windows 11
-- x64 CPU for GifShot 1.0
-- Node.js 18+ for npm installation/CLI
+## 系统要求
 
-## Install
+- Windows 10 版本 2004 或更高，或 Windows 11
+- GifShot 1.0 需要 x64 CPU
+- 通过 npm 安装/使用 CLI 需要 Node.js 18+
 
-Once published under this package name:
+## 安装
 
 ```powershell
 npm install -g gifshot-win
 gifshot start
 ```
 
-Run at sign-in:
+登录时自动启动：
 
 ```powershell
 gifshot autostart on
 ```
 
-The resident process has no main window. Use the global hotkey or the notification-area icon.
+从源码检出并完成 `npm run build:native` 后：
 
-## Commands
+```powershell
+npm install -g .
+gifshot start
+```
+
+## 命令
 
 ```text
-gifshot                 Trigger capture / start resident runtime
-gifshot start           Start resident runtime only
-gifshot stop            Stop current recording
-gifshot quit            Quit GifShot
-gifshot settings        Interactive settings (hotkeys, folders)
-gifshot help            Usage guide
-gifshot open            Open capture folder
-gifshot config          Open config.json
-gifshot autostart on    Enable sign-in startup
-gifshot autostart off   Disable sign-in startup
+gifshot                 触发捕获 / 必要时启动常驻进程
+gifshot start           仅启动常驻进程
+gifshot stop            停止当前录制
+gifshot quit            退出 GifShot
+gifshot settings        交互设置（按下组合键修改快捷键）
+gifshot help            用法说明
+gifshot open            打开捕获文件夹
+gifshot config          打开 config.json
+gifshot autostart on    启用登录启动
+gifshot autostart off   关闭登录启动
 gifshot autostart status
-gifshot doctor          Installation diagnostics
+gifshot doctor          安装诊断
 gifshot --version
 ```
 
-## Configuration
+`gifshot settings` 是数字菜单：按下组合键修改主/备用快捷键，或打开捕获文件夹。保存快捷键后会请求正在运行的常驻进程立即重载配置（`gifshot reload`）。若未生效，执行 `gifshot quit` 再 `gifshot start`。
 
-The first run creates `config.json` in the standard Windows per-user config directory. Advanced settings intentionally live there so the capture flow stays fast.
+## 配置
+
+首次运行会创建 `%APPDATA%\\GifShot\\config.json`。高级项放在这里，是为了让捕获流程保持轻快。改快捷键优先用 `gifshot settings`；其他字段再用 `gifshot config`。
 
 ```json
 {
@@ -68,6 +75,7 @@ The first run creates `config.json` in the standard Windows per-user config dire
   "fallback_hotkey": "Ctrl+Shift+G",
   "default_fps": 15,
   "fps_options": [5, 10, 15, 24],
+  "default_quality": "medium",
   "capture_cursor": true,
   "max_duration_secs": 120,
   "dim_opacity": 128,
@@ -78,12 +86,11 @@ The first run creates `config.json` in the standard Windows per-user config dire
 }
 ```
 
-GifShot validates and normalizes configuration on startup. A malformed file is preserved as `config.corrupt-<timestamp>.json` before defaults are restored. Manual edits take effect the next time the resident process starts (`gifshot quit`, then `gifshot start`).
-If `output_dir` is relative, it is resolved relative to the directory containing `config.json`, not the process working directory.
+启动时会校验并规范化配置。损坏的文件会先备份为 `config.corrupt-<timestamp>.json`，再恢复默认。手动改 JSON 后：若常驻进程在跑，可用 `gifshot reload`；否则下次启动生效（`gifshot quit`，再 `gifshot start`）。若 `output_dir` 是相对路径，相对于 `config.json` 所在目录解析，而不是进程工作目录。
 
-## Build from source
+## 从源码构建
 
-Prerequisites: Rust 1.97.1 MSVC toolchain (pinned by `rust-toolchain.toml`), Visual Studio Build Tools with the Windows SDK, and Node.js 18+.
+前置：Rust 1.97.1 MSVC 工具链（由 `rust-toolchain.toml` 固定）、带 Windows SDK 的 Visual Studio Build Tools、以及 Node.js 18+。
 
 ```powershell
 npm install
@@ -91,34 +98,40 @@ npm run build:native
 npm run verify
 ```
 
-`build:native` creates the optimized native executable and stages it under `vendor/win32-x64/gifshot.exe` for npm packaging. The source archive itself intentionally does not contain a prebuilt executable; the Windows CI/release job produces and verifies that artifact.
+`build:native` 会生成优化版原生可执行文件，并放到 `vendor/win32-x64/gifshot.exe` 供 npm 打包。源码归档本身不含预编译 exe；由 Windows CI/发版任务产出并校验。
 
-For native-only development:
+应用图标为 `native/assets/gifshot.ico`（构建时嵌入）。只改 `native/assets/gifshot.svg` 不会更新 exe，需重新生成 ICO 后再跑 `build:native`。
+
+仅开发原生部分时：
 
 ```powershell
 cargo fmt --manifest-path native/Cargo.toml -- --check
-cargo clippy --manifest-path native/Cargo.toml --all-targets
+cargo clippy --manifest-path native/Cargo.toml --all-targets -- -D warnings
 cargo test --manifest-path native/Cargo.toml
 cargo build --manifest-path native/Cargo.toml --release
 ```
 
-## V1 behavior and deliberate boundaries
+## V1 行为与刻意边界
 
-- Selection can start on **any** attached monitor, including mixed-DPI layouts.
-- A single capture selection is constrained to the monitor where the drag starts. This makes physical coordinates, GPU capture surfaces, cursor position, and GIF pixels deterministic and avoids hidden cross-adapter composition costs.
-- Protected/DRM content and secure desktops may be blank or unavailable by Windows design.
-- Windows may show its own monitor-level capture indicator on builds/policies where borderless WGC capture is unavailable; GifShot never depends on suppressing that indicator for correctness.
-- Clipboard delivery uses a real file (`CF_HDROP`). Applications that accept file paste receive the animated GIF; applications that only request bitmap clipboard formats may not accept it.
-- GifShot records pixels only. It has no audio capture, upload, analytics, account, cloud client, or built-in network service. A custom output folder may of course point at storage that Windows or another app synchronizes.
+- 可在**任意**已连接显示器上开始选区，含混合 DPI。
+- 单次捕获选区限制在开始拖拽的那块显示器上，保证物理坐标、GPU 捕获面、光标与 GIF 像素一致，并避免隐性的跨适配器合成成本。
+- 受保护/DRM 内容与安全桌面可能因 Windows 设计而空白或不可用。
+- 在无法使用无边框 WGC 捕获的系统/策略下，Windows 可能显示显示器级捕获指示；GifShot 不依赖隐藏该指示来保证正确性。
+- 剪贴板投递的是真实文件（`CF_HDROP`）。接受文件粘贴的应用会得到动画 GIF；只认位图剪贴板格式的应用可能不接受。
+- GifShot 只录像素。没有音频捕获、上传、分析、账号、云客户端或内置网络服务。自定义输出目录当然可以指向由 Windows 或其他应用同步的存储。
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/TEST_PLAN.md](docs/TEST_PLAN.md), and [docs/DELIVERY_STATUS.md](docs/DELIVERY_STATUS.md) for implementation, validation status, and release criteria.
+实现、验证与发版流程见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/TEST_PLAN.md](docs/TEST_PLAN.md)、[docs/RELEASE.md](docs/RELEASE.md)、[docs/DELIVERY_STATUS.md](docs/DELIVERY_STATUS.md)。
 
-## Uninstall
+## 卸载
 
-If you enabled sign-in startup, disable it before uninstalling so Windows does not retain a stale Run entry:
+若启用过登录启动，请先关闭，避免留下失效的 Run 项：
 
 ```powershell
 gifshot autostart off
 gifshot quit
 npm uninstall -g gifshot-win
 ```
+
+## 致谢
+
+感谢 [Linux.do](https://linux.do) 社区的支持与反馈。

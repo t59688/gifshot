@@ -6,13 +6,13 @@ GifShot exists to make one action fast:
 
 `hotkey -> select -> choose FPS -> record -> hotkey -> paste GIF`
 
-Anything that does not improve that path is excluded from the native runtime. There is no editor, webview, project database, cloud service, media server, or full settings window.
+Anything that does not improve that path is excluded from the native runtime. There is no editor, webview, project database, cloud service, media server, or GUI settings window. Hotkeys and a few recovery actions live in a terminal menu (`gifshot settings`) and the tray.
 
 ## Stack
 
 | Layer | Technology | Responsibility |
 |---|---|---|
-| Distribution | npm + Node.js launcher | install/update, CLI commands, autostart registration |
+| Distribution | npm + Node.js launcher | install/update, CLI commands, autostart, interactive settings/help |
 | Native runtime | Rust 2024 | single resident process and lifecycle |
 | Capture | Windows Graphics Capture + D3D11 through `windows-capture` | hardware-accelerated monitor frames and selected-region GPU readback |
 | UI | raw Win32/GDI through `windows-sys` | dimmer, crosshair, selection outline, FPS popup, recording HUD, tray |
@@ -31,6 +31,8 @@ Subsequent CLI invocations observe the mutex, wait briefly for the control windo
 ```text
 npm CLI
   |
+  +---- settings / help ---- Node interactive TTY (no resident process required)
+  |
   +---- gifshot.exe (existing?) ---- yes --> PostMessage(WM_APP + n) --> exit
   |                                  no
   +---------------------------------------> create resident process
@@ -39,6 +41,8 @@ npm CLI
                                                 +-- WGC capture thread (only while recording)
                                                 +-- GIF encoder thread (only while recording/finalizing)
 ```
+
+`settings` and `help` stay in the Node launcher so they can own a real console. The tray opens those same commands via a temporary `.cmd` + `ShellExecute` (GUI-subsystem `gifshot.exe` cannot give Node a TTY). Changing a hotkey writes `config.json` and posts `WM_GIFSHOT_RELOAD_CONFIG` (`gifshot reload`) so the resident process rebinds the hotkey without a restart.
 
 ## State machine
 
@@ -149,7 +153,9 @@ This is a correctness invariant, not an optimization. It prevents use-after-free
 - encoder failure -> remove `.part`, report fatal error;
 - clipboard contention -> retry, preserve GIF, warn;
 - quit while recording -> stop/finalize first, then quit;
-- repeated CLI invocations -> route to the single resident instance.
+- repeated CLI invocations -> route to the single resident instance;
+- `gifshot reload` with no resident process -> no-op;
+- settings hotkey capture cancelled (Esc) -> leave config unchanged.
 
 ## Privacy and security
 
@@ -165,10 +171,14 @@ Protected video, secure desktop/UAC screens, and some privileged surfaces are OS
 - `capture.rs` — WGC session, frame pacing, crop/readback, backpressure
 - `encoder.rs` — streaming GIF encoding, timing, atomic finalization
 - `clipboard.rs` — `CF_HDROP`
-- `tray.rs` — notification-area recovery controls and notifications
+- `tray.rs` — notification-area icon, Chinese recovery menu, notifications
 - `hotkey.rs` — user-readable hotkey parsing
+- `hotkey_capture.rs` — low-level keyboard hook for `gifshot settings` chord capture
 - `config.rs` — schema/normalization/recovery/atomic persistence
 - `paths.rs` — standard per-user Windows directories
-- `win32.rs` — concentrated unsafe Win32 helpers
+- `win32.rs` — concentrated unsafe Win32 helpers, including tray CLI launch
 - `types.rs` — shared value types
 - `logging.rs` — local diagnostics
+- `bin/gifshot.js` — npm CLI dispatcher
+- `bin/interactive.js` — settings menu and help text
+- `native/assets/gifshot.ico` — embedded exe / tray icon (from `gifshot.svg`)

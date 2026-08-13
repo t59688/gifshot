@@ -23,6 +23,7 @@ const files = [
   'bin/interactive.js',
   'docs/ARCHITECTURE.md',
   'docs/TEST_PLAN.md',
+  'docs/RELEASE.md',
 ];
 
 for (const relative of files) {
@@ -60,6 +61,8 @@ const checks = [
   ['native/src/hud.rs', 'SetTimer(timer_hwnd'],
   ['native/src/clipboard.rs', 'CF_HDROP'],
   ['native/src/config.rs', 'config.corrupt-'],
+  ['docs/RELEASE.md', 'npm publish'],
+  ['docs/RELEASE.md', 'NPM_TOKEN'],
 ];
 for (const [file, needle] of checks) {
   const text = fs.readFileSync(path.join(root, file), 'utf8');

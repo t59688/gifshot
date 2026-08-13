@@ -9,8 +9,11 @@
 - Streaming bounded-memory GIF encoder with duplicate-frame coalescing and cumulative centisecond timing.
 - Atomic GIF finalization to Pictures\\GifShot.
 - Automatic `CF_HDROP` file clipboard delivery with contention retry.
-- Notification-area menu, success/warning/error notifications and local diagnostics.
+- Embedded application icon for the executable and notification-area icon.
+- Tray menu: capture/stop, settings, help, quit (Chinese labels; menu opens above the tray icon).
+- Interactive `gifshot settings` (press a chord to change hotkeys; open capture folder) and `gifshot help`.
+- Live config reload (`gifshot reload`) so a running resident process rebinds hotkeys after settings save.
 - Persistent validated JSON configuration with corrupt-file recovery.
-- Preferred/fallback hotkeys, configurable cursor capture, duration limit and output directory.
-- npm CLI for capture/start/stop/quit/open/config/autostart/doctor.
-- Windows CI, release packaging checks and documented manual release matrix.
+- Preferred/fallback hotkeys, GIF quality profile, cursor capture, duration limit and output directory.
+- npm CLI for capture/start/stop/quit/settings/help/open/config/autostart/doctor.
+- Windows CI; tagging `vX.Y.Z` builds the native binary, attaches the npm tarball to the GitHub Release, and publishes `gifshot-win` to npm.

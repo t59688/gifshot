@@ -6,7 +6,7 @@ This source tree is the V1.0 implementation of GifShot's defined product scope:
 
 ## Implemented
 
-- npm-installed Windows CLI / resident launcher
+- npm-installed Windows CLI / resident launcher (`gifshot-win` on npm)
 - single-instance resident process with command rendezvous
 - preferred + fallback global hotkey registration
 - per-monitor-v2-DPI-aware multi-monitor region selector
@@ -20,31 +20,24 @@ This source tree is the V1.0 implementation of GifShot's defined product scope:
 - recording border / timer HUD designed not to contaminate captured pixels
 - maximum-duration stop
 - `CF_HDROP` clipboard delivery with retry handling
-- capture folder, tray menu, notifications, config, logs, autostart and CLI control
+- embedded application icon; tray menu (capture, settings, help, quit)
+- interactive terminal settings (chord capture) and help; live hotkey reload
+- capture folder, notifications, config, logs, autostart and CLI control
 - corrupt-config recovery and atomic config writes
 - named-mutex single-instance protection
 - Explorer taskbar/tray restoration path
-- Windows CI / release workflows, source audit, package verification and manual test plan
+- Windows CI; tag `v*` builds, attaches the npm tarball to the GitHub Release, and publishes to npm
 
-## Validation completed in this delivery environment
+## Release gates
 
-The delivery environment is Linux and does not provide the Windows SDK/MSVC toolchain or Rust toolchain, so it cannot execute Windows.Graphics.Capture or produce a trustworthy Windows PE binary.
+Automated on `windows-latest` (`.github/workflows/ci.yml` and `.github/workflows/release.yml`):
 
-Completed here:
+- `cargo fmt`, `cargo test`, `cargo clippy -- -D warnings`, locked release compilation
+- Node launcher syntax, source audit, staged PE (`MZ`) verification
+- `npm pack` of a package that contains `vendor/win32-x64/gifshot.exe`
 
-- JavaScript syntax validation for the CLI and release/build scripts
-- source-structure / required-implementation audit (`npm test`)
-- review of critical lifecycle, capture, encoder, Win32 reentrancy, clipboard and failure paths
-- source archive creation and checksum
-
-Not falsely claimed as completed here:
-
-- `cargo fmt`, `cargo test`, `cargo clippy` and Windows MSVC release compilation
-- real Windows 10/11 capture, DPI, multi-monitor and clipboard smoke tests
-- npm package dry-run containing a real `gifshot.exe`
-
-Those checks are intentionally release gates in `.github/workflows/ci.yml`, `.github/workflows/release.yml` and `docs/TEST_PLAN.md`. A public npm release should not be published until they pass on Windows.
+Manual desktop matrix remains in `docs/TEST_PLAN.md`. Capture, DPI, multi-monitor, clipboard, and tray behavior are not proven by compilation alone.
 
 ## Release prerequisite
 
-Generate and review `native/Cargo.lock` on the pinned Rust 1.97.1 Windows build environment, commit it, then create the public release tag. The release workflow rejects an unlocked release build by design.
+Keep `native/Cargo.lock` generated on the pinned Rust 1.97.1 Windows toolchain, reviewed, and committed. The release workflow rejects an unlocked release build by design. `NPM_TOKEN` must exist as a repository secret before a tag can publish.

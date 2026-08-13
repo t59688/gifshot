@@ -38,8 +38,7 @@ jobs:
       - name: JavaScript syntax
         shell: pwsh
         run: |
-          node --check bin/gifshot.js
-          Get-ChildItem scripts/*.js | ForEach-Object { node --check $_.FullName }
+          Get-ChildItem bin/*.js, scripts/*.js | ForEach-Object { node --check $_.FullName }
 
       - name: Source audit
         run: npm run verify:source

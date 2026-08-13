@@ -1,6 +1,6 @@
 # GifShot 1.0 Release Test Plan
 
-A V1 release is not accepted from compilation alone. Run this matrix on real Windows desktops before publishing the npm package.
+A V1 release is not accepted from compilation alone. Run this matrix on real Windows desktops before cutting a `v*` tag (which auto-publishes npm).
 
 ## Automated gates
 
@@ -10,7 +10,7 @@ On `windows-latest` CI:
 - Rust Clippy
 - Rust unit tests
 - optimized native build
-- Node launcher syntax check
+- Node launcher syntax check (`bin/gifshot.js` and `scripts/*.js`)
 - source audit
 - staged PE (`MZ`) package verification
 - `npm pack --dry-run`
@@ -101,7 +101,12 @@ The contractual behavior is that `CF_HDROP` contains the saved `.gif` path. An a
 - capture directory unwritable -> visible error, no phantom success notification;
 - WGC session terminates unexpectedly -> finalize available frames when possible and warn;
 - max duration -> automatic finalize;
-- Explorer restart -> tray icon is automatically restored through the registered `TaskbarCreated` message.
+- Explorer restart -> tray icon is automatically restored through the registered `TaskbarCreated` message;
+- tray right-click menu appears above the icon (not below the taskbar) with 录制 GIF / 设置 / 帮助 / 退出;
+- tray **设置** and **帮助** open a usable console (does not flash-close; stdin is a TTY);
+- `gifshot settings` item 1/2 captures a chord (Esc cancels); item 3 opens Pictures\\GifShot in Explorer (window is visible);
+- after saving a hotkey in settings, the running resident process rebinds without quit/start;
+- `gifshot help` prints the usage guide;
 - repeat capture -> Escape cancel -> capture at least 100 times -> no crash, stuck overlay, or leaked topmost window;
 - repeatedly issue `gifshot quit` while selector/FPS chooser is visible -> clean exit with no access violation;
 - hammer capture/stop/quit commands from separate terminals -> exactly one resident instance and no double finalization;
