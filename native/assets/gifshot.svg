@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="371" height="368" viewBox="0 0 371 368">
+  <defs>
+    <!-- 背景：青蓝 → 靛蓝 → 紫色 -->
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="371" y2="368" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#02B2FA"/>
+      <stop offset="0.31" stop-color="#2372EA"/>
+      <stop offset="0.53" stop-color="#464ED7"/>
+      <stop offset="0.78" stop-color="#6727DE"/>
+      <stop offset="1" stop-color="#8C0DD8"/>
+    </linearGradient>
+
+    <!-- 白色元素并非纯白，保留原图略带冷紫的层次 -->
+    <linearGradient id="whiteGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.58" stop-color="#FCFAFF"/>
+      <stop offset="1" stop-color="#EEE9FF"/>
+    </linearGradient>
+
+    <!-- 主运动拖尾 -->
+    <linearGradient id="tailGradient"
+                    x1="-8" y1="348" x2="217" y2="177"
+                    gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#415BE0" stop-opacity="0.82"/>
+      <stop offset="0.16" stop-color="#6852E1"/>
+      <stop offset="0.34" stop-color="#C94ED6"/>
+      <stop offset="0.50" stop-color="#F653B8"/>
+      <stop offset="0.66" stop-color="#FF718E"/>
+      <stop offset="0.82" stop-color="#FFA047"/>
+      <stop offset="1" stop-color="#FFE04C"/>
+    </linearGradient>
+
+    <linearGradient id="streakLeft" x1="29" y1="251" x2="71" y2="234" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6953E0"/>
+      <stop offset="0.55" stop-color="#E951C7"/>
+      <stop offset="1" stop-color="#FF716E"/>
+    </linearGradient>
+
+    <linearGradient id="streakTop" x1="94" y1="220" x2="149" y2="193" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F057B9"/>
+      <stop offset="0.64" stop-color="#FF7B64"/>
+      <stop offset="1" stop-color="#FFB83C"/>
+    </linearGradient>
+
+    <linearGradient id="streakBottom" x1="154" y1="292" x2="202" y2="247" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9650D7"/>
+      <stop offset="0.48" stop-color="#EE5BB8"/>
+      <stop offset="1" stop-color="#FFC03D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 01 / Background：全幅色底，主体单独放大以收紧视觉留白 -->
+  <g id="background">
+    <rect x="0" y="0" width="371" height="368" fill="url(#bgGradient)"/>
+  </g>
+
+  <g id="subject" transform="translate(185.5 184) scale(1.24) translate(-185.5 -184)">
+    <!-- 02 / Motion tail -->
+    <g id="motion-tail">
+      <path
+        d="M -8 289
+           C 39 278 93 259 139 234
+           C 172 216 197 194 215 175
+           C 221 181 224 188 224 197
+           C 205 224 177 251 143 277
+           C 102 308 53 336 -8 357
+           Z"
+        fill="url(#tailGradient)"/>
+
+      <path d="M 31 250.5 L 68.5 235"
+            fill="none"
+            stroke="url(#streakLeft)"
+            stroke-width="6"
+            stroke-linecap="round"/>
+
+      <path d="M 95 220 L 148.5 193"
+            fill="none"
+            stroke="url(#streakTop)"
+            stroke-width="8"
+            stroke-linecap="round"/>
+
+      <path d="M 154.5 291.5 L 201 248"
+            fill="none"
+            stroke="url(#streakBottom)"
+            stroke-width="8"
+            stroke-linecap="round"/>
+    </g>
+
+    <!-- 03 / Capture frame corners -->
+    <g id="capture-frame"
+       fill="none"
+       stroke="url(#whiteGradient)"
+       stroke-width="19"
+       stroke-linecap="round"
+       stroke-linejoin="round">
+
+      <path id="corner-top-left"
+            d="M 119 55
+               H 82
+               C 67 55 55 67 55 82
+               V 120"/>
+
+      <path id="corner-top-right"
+            d="M 251 55
+               H 289
+               C 304 55 316 67 316 82
+               V 120"/>
+
+      <path id="corner-bottom-right"
+            d="M 316 258
+               V 292
+               C 316 307 304 320 289 320
+               H 251"/>
+    </g>
+
+    <!-- 04 / Central sparkle -->
+    <g id="sparkle">
+      <path
+        d="M 226 107
+           C 222 107 223 125 215 138
+           C 207 151 195 155 178 158
+           C 173 159 172 164 177 166
+           C 195 169 207 174 215 186
+           C 222 197 221 214 226 216
+           C 231 216 231 198 238 186
+           C 246 174 259 169 276 166
+           C 281 165 281 160 276 158
+           C 258 155 247 151 239 139
+           C 232 128 232 108 226 107
+           Z"
+        fill="url(#whiteGradient)"/>
+    </g>
+
+    <!-- 05 / Lower-left white accent -->
+    <g id="lower-left-accent">
+      <path
+        d="M 90 329
+           L 117 311
+           C 121 309 125 311 128 315
+           C 130 318 129 322 127 325
+           C 125 328 122 329 117 329
+           Z"
+        fill="url(#whiteGradient)"/>
+    </g>
+  </g>
+</svg>

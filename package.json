@@ -1,0 +1,37 @@
+{
+  "name": "gifshot-win",
+  "version": "1.0.0",
+  "description": "Win+Shift+S-style GIF screen recorder for Windows",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "gifshot": "bin/gifshot.js"
+  },
+  "os": ["win32"],
+  "cpu": ["x64"],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "vendor/win32-x64/gifshot.exe",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build:native": "node scripts/build-native.js",
+    "stage:native": "node scripts/stage-native.js",
+    "verify": "node scripts/verify-package.js",
+    "verify:source": "node scripts/source-audit.js",
+    "test": "npm run verify:source",
+    "prepack": "npm run verify"
+  },
+  "keywords": [
+    "gif",
+    "screen-recorder",
+    "screenshot",
+    "windows",
+    "capture"
+  ]
+}

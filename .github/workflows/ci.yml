@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          components: rustfmt, clippy
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Generate dependency lockfile
+        shell: pwsh
+        run: cargo generate-lockfile --manifest-path native/Cargo.toml
+
+      - name: Rust format
+        run: cargo fmt --manifest-path native/Cargo.toml -- --check
+
+      - name: Rust lint
+        run: cargo clippy --manifest-path native/Cargo.toml --all-targets -- -D warnings
+
+      - name: Rust tests
+        run: cargo test --manifest-path native/Cargo.toml
+
+      - name: JavaScript syntax
+        shell: pwsh
+        run: |
+          node --check bin/gifshot.js
+          Get-ChildItem scripts/*.js | ForEach-Object { node --check $_.FullName }
+
+      - name: Source audit
+        run: npm run verify:source
+
+      - name: Release build and stage
+        run: npm run build:native
+
+      - name: Package verification
+        run: npm run verify
+
+      - name: npm package preview
+        run: npm pack --dry-run

@@ -1,0 +1,6 @@
+/native/target/
+/vendor/**/gifshot.exe
+*.gif
+*.gif.part
+node_modules/
+.DS_Store

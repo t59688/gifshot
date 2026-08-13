@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "hotkey": "Win+Shift+G",
+  "fallback_hotkey": "Ctrl+Shift+G",
+  "default_fps": 15,
+  "fps_options": [5, 10, 15, 24],
+  "default_quality": "medium",
+  "capture_cursor": true,
+  "max_duration_secs": 120,
+  "dim_opacity": 128,
+  "gif_quantizer_speed": 10,
+  "copy_to_clipboard": true,
+  "show_notifications": true,
+  "output_dir": null
+}

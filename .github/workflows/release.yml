@@ -1,0 +1,77 @@
+name: release-artifact
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          components: rustfmt, clippy
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Require committed dependency lock
+        shell: pwsh
+        run: |
+          if (-not (Test-Path native/Cargo.lock)) {
+            throw 'native/Cargo.lock must be generated, reviewed, and committed before a release tag.'
+          }
+
+      - name: Verify tag matches package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          if ($env:GITHUB_REF_NAME -ne "v$version") {
+            throw "Tag $env:GITHUB_REF_NAME does not match package version v$version"
+          }
+
+      - name: Validate native runtime
+        shell: pwsh
+        run: |
+          cargo fmt --manifest-path native/Cargo.toml -- --check
+          cargo test --manifest-path native/Cargo.toml --locked
+          cargo clippy --manifest-path native/Cargo.toml --all-targets --locked -- -D warnings
+
+      - name: Source audit
+        run: npm run verify:source
+
+      - name: Build native runtime (locked)
+        shell: pwsh
+        run: |
+          cargo build --manifest-path native/Cargo.toml --release --locked
+          node scripts/stage-native.js
+
+      - name: Verify release package
+        run: npm run verify
+
+      - name: Create npm tarball
+        shell: pwsh
+        run: npm pack
+
+      - name: Create SHA-256 checksum
+        shell: pwsh
+        run: |
+          $tgz = Get-ChildItem *.tgz | Select-Object -First 1
+          (Get-FileHash $tgz.FullName -Algorithm SHA256).Hash.ToLower() + "  " + $tgz.Name | Set-Content "$($tgz.Name).sha256" -Encoding ascii
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gifshot-win-npm
+          path: |
+            *.tgz
+            *.tgz.sha256
+          if-no-files-found: error

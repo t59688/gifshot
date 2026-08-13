@@ -1,0 +1,49 @@
+[package]
+name = "gifshot-native"
+version = "1.0.0"
+edition = "2024"
+description = "Native Windows runtime for GifShot"
+license = "MIT"
+publish = false
+
+[[bin]]
+name = "gifshot"
+path = "src/main.rs"
+
+[build-dependencies]
+winresource = "0.1.23"
+
+[dependencies]
+chrono = { version = "0.4.42", default-features = false, features = ["clock"] }
+color_quant = "1.1"
+crossbeam-channel = "0.5.15"
+directories = "6.0.0"
+gif = "0.14.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0"
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+windows-capture = "2.0.1"
+windows-sys = { version = "0.61.2", features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Gdi",
+  "Win32_Security",
+  "Win32_System_DataExchange",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Memory",
+  "Win32_System_Threading",
+  "Win32_Storage_FileSystem",
+  "Win32_UI_HiDpi",
+  "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging"
+] }
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+panic = "abort"
+strip = "symbols"
+opt-level = "z"
