@@ -268,7 +268,7 @@ fn mixed_pixel(x: i32, y: i32, w: i32, h: i32, t: i32) -> (u8, u8, u8) {
 
     let noise_zone = x < 120 && y > h - 120;
     let noise = if noise_zone {
-        (((x * 37 + y * 91 + t * 13) % 51) - 25) as i32
+        ((x * 37 + y * 91 + t * 13) % 51) - 25
     } else {
         0
     };
@@ -300,7 +300,7 @@ fn flat_ui_pixel(x: i32, y: i32, w: i32, h: i32, t: i32) -> (u8, u8, u8) {
     }
 
     let panel_x = 80 + (t % 40);
-    if x >= panel_x && x < panel_x + 220 && y >= 70 && y < 220 {
+    if x >= panel_x && x < panel_x + 220 && (70..220).contains(&y) {
         if y < 102 {
             return (0, 122, 204);
         }
@@ -311,7 +311,7 @@ fn flat_ui_pixel(x: i32, y: i32, w: i32, h: i32, t: i32) -> (u8, u8, u8) {
     }
 
     let caret = 300 + ((t * 7) % (w - 360)).max(0);
-    if x >= caret && x < caret + 2 && y >= 90 && y < 250 {
+    if x >= caret && x < caret + 2 && (90..250).contains(&y) {
         return (255, 255, 255);
     }
 

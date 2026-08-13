@@ -73,6 +73,7 @@ impl DelayClock {
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn start(
     options: EncoderOptions,
 ) -> Result<(Sender<EncoderMessage>, Receiver<EncoderMessage>, JoinHandle<Result<EncodeSummary, String>>), String> {
@@ -182,6 +183,7 @@ fn encode_loop(rx: Receiver<EncoderMessage>, options: EncoderOptions) -> Result<
     result
 }
 
+#[allow(clippy::too_many_arguments)]
 fn write_frame<W: Write>(
     encoder: &mut Encoder<W>,
     pending: &mut PendingFrame,

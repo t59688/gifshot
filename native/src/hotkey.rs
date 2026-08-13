@@ -47,14 +47,12 @@ fn parse_vk(key: &str) -> Result<u32, String> {
         }
     }
 
-    if let Some(rest) = key.strip_prefix('f') {
-        if let Ok(n) = rest.parse::<u32>() {
-            if (1..=24).contains(&n) {
+    if let Some(rest) = key.strip_prefix('f')
+        && let Ok(n) = rest.parse::<u32>()
+            && (1..=24).contains(&n) {
                 // VK_F1 = 0x70.
                 return Ok(0x6F + n);
             }
-        }
-    }
 
     Err(format!("unsupported hotkey key: {key}"))
 }

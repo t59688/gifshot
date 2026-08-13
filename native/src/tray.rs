@@ -29,7 +29,7 @@ pub const CMD_HELP: u32 = 1003;
 pub const CMD_QUIT: u32 = 1004;
 
 /// Resource ID assigned by `winresource` when embedding `assets/gifshot.ico`.
-const IDI_GIFSHOT: isize = 1;
+const IDI_GIFSHOT: u16 = 1;
 const ICON_ID: u32 = 1;
 
 pub struct TrayIcon {
@@ -223,7 +223,7 @@ fn load_tray_icon() -> (HICON, bool) {
         let cy = GetSystemMetrics(SM_CYSMICON);
         let icon = LoadImageW(
             instance,
-            IDI_GIFSHOT as *const u16,
+            win32::make_int_resource(IDI_GIFSHOT),
             IMAGE_ICON,
             cx,
             cy,

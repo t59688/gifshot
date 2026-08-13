@@ -280,10 +280,10 @@ fn register_main_class() -> Result<(), String> {
             class.lpfnWndProc = Some(main_proc);
             class.hInstance = instance;
             // Resource ID 1 is the app icon embedded by winresource from assets/gifshot.ico.
-            class.hIcon = LoadIconW(instance, 1 as *const u16);
+            class.hIcon = LoadIconW(instance, win32::make_int_resource(1));
             class.hIconSm = LoadImageW(
                 instance,
-                1 as *const u16,
+                win32::make_int_resource(1),
                 IMAGE_ICON,
                 GetSystemMetrics(SM_CXSMICON),
                 GetSystemMetrics(SM_CYSMICON),
@@ -717,27 +717,24 @@ impl App {
     }
 
     fn notify_info(&self, title: &str, text: &str) {
-        if self.config.show_notifications {
-            if let Some(tray) = &self.tray {
+        if self.config.show_notifications
+            && let Some(tray) = &self.tray {
                 tray.notify_info(title, text);
             }
-        }
     }
 
     fn notify_warning(&self, title: &str, text: &str) {
-        if self.config.show_notifications {
-            if let Some(tray) = &self.tray {
+        if self.config.show_notifications
+            && let Some(tray) = &self.tray {
                 tray.notify_warning(title, text);
             }
-        }
     }
 
     fn notify_error(&self, title: &str, text: &str) {
-        if self.config.show_notifications {
-            if let Some(tray) = &self.tray {
+        if self.config.show_notifications
+            && let Some(tray) = &self.tray {
                 tray.notify_error(title, text);
             }
-        }
     }
 }
 
@@ -787,11 +784,10 @@ unsafe extern "system" fn main_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam
     let app = &mut *raw;
 
     if app.taskbar_created_msg != 0 && msg == app.taskbar_created_msg {
-        if let Some(tray) = app.tray.as_mut() {
-            if let Err(e) = tray.restore() {
+        if let Some(tray) = app.tray.as_mut()
+            && let Err(e) = tray.restore() {
                 warn!(error = %e, "failed to restore notification-area icon after Explorer restart");
             }
-        }
         return 0;
     }
 
@@ -862,8 +858,8 @@ unsafe extern "system" fn main_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam
         WM_TRAY_CALLBACK => {
             let event = lparam as u32;
             if event == WM_RBUTTONUP {
-                if let Some(tray_icon) = &app.tray {
-                    if let Some(command) = tray_icon.show_menu(app.state.is_recording()) {
+                if let Some(tray_icon) = &app.tray
+                    && let Some(command) = tray_icon.show_menu(app.state.is_recording()) {
                         match command {
                             tray::CMD_CAPTURE_OR_STOP => app.toggle(),
                             tray::CMD_SETTINGS => app.open_settings_cli(),
@@ -872,7 +868,6 @@ unsafe extern "system" fn main_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam
                             _ => {}
                         }
                     }
-                }
             } else if event == WM_LBUTTONDBLCLK {
                 app.toggle();
             }

@@ -24,6 +24,11 @@ pub fn wide(value: impl AsRef<OsStr>) -> Vec<u16> {
     value.as_ref().encode_wide().chain(std::iter::once(0)).collect()
 }
 
+/// Win32 `MAKEINTRESOURCEW` — integer resource IDs are encoded in the pointer value.
+pub fn make_int_resource(id: u16) -> *const u16 {
+    std::ptr::with_exposed_provenance(id as usize)
+}
+
 pub const fn rgb(r: u8, g: u8, b: u8) -> u32 {
     (r as u32) | ((g as u32) << 8) | ((b as u32) << 16)
 }
